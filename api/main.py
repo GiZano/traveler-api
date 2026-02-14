@@ -1,7 +1,7 @@
-import api.traveler_api as api
+import traveler_api as api
 
 
-welcome_message = """
+welcome_message = r"""
 
 ***************************************************************
 * __        __   _                            _               *     
@@ -15,6 +15,7 @@ welcome_message = """
 *   |_||_|  \__,_| \_/ \___|_|\___|_|    /_/   \_\_|  |___(_) *
 *                                                             * 
 ***************************************************************
+
 """
 
 if __name__ == '__main__':
@@ -25,6 +26,6 @@ if __name__ == '__main__':
 
         country = str(input("Insert a country name:"))
 
-        print(api.fetchCountry(country))
+        api.infoPrinter(country)
 
         

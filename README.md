@@ -1,5 +1,7 @@
 # 🧭 CuriousTrip - Traveler API v2.0
 
+![Welcome Image](https://giovanni-zanotti.is-a.dev/Media/curious-traveler/hero.webp)
+
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue?logo=python)
 ![Asyncio](https://img.shields.io/badge/architecture-asynchronous-orange)
 

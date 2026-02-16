@@ -2,7 +2,6 @@
 
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue?logo=python)
 ![Asyncio](https://img.shields.io/badge/architecture-asynchronous-orange)
-![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-brightgreen.svg)
 
 **The Curious Traveler** (also known as *CuriousTrip*) is a modular, high-performance command-line application designed for travel data aggregation. By orchestrating nine distinct RESTful APIs, the application generates a comprehensive "Swindle Sheet"—a curated travel profile featuring demographic, meteorological, financial, and cultural insights.
 
@@ -60,8 +59,8 @@ The application aggregates data from the following providers:
 * **Education**: HipoLabs Universities API
 * **Content & Trivia**: TheMealDB, Cat Facts, JokeAPI, NASA APOD, and Dog API.
 
-### Note on University API (uni_api)
-The `uni_api` module currently utilizes a `DEMO_KEY`. If the application returns an **Oops..."** message in the University section, it indicates that the demo credit limit has been reached. For extended use, it is mandatory to generate a personal API Key and update the configuration within the module to restore functionality.
+### Note on NASA API (space_api)
+The `space_api` module currently utilizes a `DEMO_KEY`. If the application returns an **Oops..."** message in the Space Photo section, it indicates that the demo credit limit has been reached. For extended use, it is mandatory to generate a personal API Key and update the configuration within the module to restore functionality.
 
 ---
 

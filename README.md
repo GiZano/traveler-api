@@ -1,134 +1,124 @@
-# 🧭 The Curious Traveler
+# 🧭 The Curious Traveler API
 
-## 📝 Description
+![Python Version](https://img.shields.io/badge/python-3.10%2B-blue?logo=python)
+![Requests](https://img.shields.io/badge/library-requests-green)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-brightgreen.svg)
 
-**The Curious Traveler** is a command-line Python application designed to aggregate and display comprehensive travel data. By integrating multiple free public APIs, the application allows users to input a destination country and instantly receive a curated travel profile. This profile includes demographic information, real-time weather conditions, live currency conversion, culinary suggestions, and daily entertainment trivia. 
+**The Curious Traveler** (also known as *CuriousTrip*) is a modular, command-line Python application designed to aggregate and display comprehensive travel data. By orchestrating multiple free public REST APIs, the application allows users to input a destination country and instantly receive a curated travel profile, also known as a "Swindle Sheet". 
 
-The project serves as a practical demonstration of handling HTTP REST requests, parsing complex JSON payloads, and orchestrating data from diverse external sources into a unified, highly readable interface.
-
----
-
-## 📋 Development Phases
-
-### Phase 1 — Setup and Initial Fetch
-
-1. Prompt the user to input a country name in English (e.g., `Italy`, `Japan`, `Brazil`).
-2. Utilize the **REST Countries API** to retrieve information regarding the specified country:
-   * `https://restcountries.com/v3.1/name/{country_name}`
-3. From the API response, extract and display:
-   * Official country name
-   * Capital city
-   * Population
-   * Continent
-   * Spoken languages
-   * Currency used
-
-> **Tip:** The response is returned as a list. You will need to access the first element (e.g., `data[0]`).
+This project demonstrates practical skills in handling HTTP REST requests, parsing complex JSON payloads, handling exceptions for external services, and orchestrating data from diverse sources into a unified, highly readable CLI interface.
 
 ---
 
-### Phase 2 — Weather Conditions
+## ✨ Features
 
-1. From the REST Countries response, extract the geographic coordinates of the capital city (locate the `capitalInfo` → `latlng` field).
-2. Utilize these coordinates to query the **Open-Meteo API** for current weather data:
-   * `https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true`
-3. Extract and display:
-   * Current temperature
-   * Wind speed
-   * Weather condition: If the `weathercode` field equals 0, display "☀️ Clear sky"; otherwise, display "☁️ Cloudy/Variable".
-
----
-
-### Phase 3 — Budget Conversion
-
-1. From the REST Countries response, identify the local currency code (e.g., `JPY` for Japan, `BRL` for Brazil).
-2. Use the **ExchangeRate API** to retrieve the current exchange rate relative to the Euro:
-   * `https://open.er-api.com/v6/latest/EUR`
-3. Prompt the user to input a travel budget in Euros (e.g., `500`).
-4. Calculate and display the equivalent value of the budget in the destination's local currency.
+- **🌍 Destination Demographics**: Retrieves official name, capital, population, continent, languages, and currency.
+- **🌤️ Real-time Weather**: Checks the current temperature, wind speed, and weather conditions of the destination's capital.
+- **💰 Live Budget Conversion**: Converts a user-defined budget from EUR to the destination's local currency using up-to-date exchange rates.
+- **🎓 Top Universities**: Suggests the top 3 universities located in the chosen country.
+- **🍽️ Culinary Suggestions**: Recommends a random meal with ingredients to inspire your travel palate.
+- **🎲 Entertainment & Trivia**: Delivers a random travel joke and a daily cat fact to keep things fun.
+- **📸 Daily Space Imagery & Dogs**: Fetches NASA's Astronomy Picture of the Day and a random dog picture.
+- **💾 Local Data Export**: Seamlessly saves the generated travel profile to a local `.txt` file within the `/app/data/` directory for future reference.
 
 ---
 
-### Phase 4 — Culinary Suggestion
+## 📂 Project Structure
 
-1. Query **TheMealDB** to fetch a random recipe:
-   * `https://www.themealdb.com/api/json/v1/1/random.php`
-2. Extract and display:
-   * Dish name
-   * Category (e.g., Seafood, Dessert)
-   * The first 5 ingredients (fields are named `strIngredient1`, `strIngredient2`, etc.)
-   * Link to the recipe instructions (using `strSource` or `strYoutube`)
+The project follows a clean, modular architecture, separating API logic from data processing and the main CLI loop.
 
-> **Note:** TheMealDB returns international recipes, so the dish may not originate from the selected country. Present this simply as a "Chef's Suggestion".
-
----
-
-### Phase 5 — Daily Trivia
-
-1. Use the **Cat Facts API** to fetch a random cat fact:
-   * `https://catfact.ninja/fact`
-2. Use the **JokeAPI** to fetch a random joke:
-   * `https://v2.jokeapi.dev/joke/Any?lang=en&type=single`
-3. Display both items under a "Travel Entertainment" section.
-
----
-
-### Phase 6 — The Final Output Card
-
-Assemble all the aggregated data into a clean, highly readable command-line interface output. The application should print a structured card similar to the following format:
-
-    ╔══════════════════════════════════════════╗
-    ║        TRAVEL PROFILE - CURIOUSTRIP      ║
-    ╠══════════════════════════════════════════╣
-    
-    📍 DESTINATION
-       Country: Japan
-       Capital: Tokyo
-       Continent: Asia
-       Population: 125,836,021
-       Languages: Japanese
-       Currency: Japanese yen (JPY)
-    
-    🌤️ WEATHER IN TOKYO
-       Temperature: 12°C
-       Wind: 15 km/h
-       Conditions: ☀️ Clear sky
-    
-    💰 BUDGET
-       500 EUR = 78,500 JPY
-    
-    🍽️ CHEF'S SUGGESTION
-       Dish: Sushi
-       Category: Seafood
-       Ingredients: Rice, Nori, Salmon, Avocado, Soy Sauce
-    
-    🐱 TRIVIA
-       "Cats sleep for 70% of their lives."
-    
-    😂 TRAVEL JOKE
-       "Why did the computer go to the doctor? Because it had a virus!"
-    
-    ╚══════════════════════════════════════════╝
+```text
+.
+├── app/
+│   ├── api/
+│   │   ├── budget_api.py    # ExchangeRate API integration
+│   │   ├── cat_api.py       # Cat Facts API
+│   │   ├── country_api.py   # REST Countries API
+│   │   ├── dog_api.py       # Dog API
+│   │   ├── food_api.py      # TheMealDB API
+│   │   ├── joke_api.py      # JokeAPI
+│   │   ├── space_api.py     # NASA APOD API
+│   │   ├── uni_api.py       # HipoLabs Universities API
+│   │   └── weather_api.py   # Open-Meteo API
+│   ├── data/                # Generated text profiles are saved here
+│   ├── tools/
+│   │   └── saver.py         # Utility to write data to .txt files
+│   ├── info_fetcher.py      # Orchestrator that gathers data from all APIs
+│   └── main.py              # Entry point and CLI UI loop
+├── .gitignore               # Ignores __pycache__, venv, and data files
+├── README.md                # Project documentation
+└── requirements.txt         # Project dependencies
+```
 
 ---
 
-### Phase 7 — BONUS Features 
+## 🚀 Installation & Setup
 
- Following enhancements to implement:
+1. **Clone the repository:**
+```bash
+   git clone https://github.com/yourusername/traveler-api.git
+   cd traveler-api
+```   
 
-* **🔁 Application Loop:** Upon displaying the card, prompt the user to search for another country or exit the application.
-* **📸 Space Imagery:** Append the Astronomy Picture of the Day to the card using the **NASA APOD API** (`https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY`). Display the title and the image URL.
-* **🐶 Random Dog:** Replace (or accompany) the cat fact with a link to a random dog image using the **Dog API** (`https://dog.ceo/api/breeds/image/random`).
-* **🎓 Universities:** Query the **Hipolabs Universities API** to print the top 3 universities located in the chosen country.
-* **💾 Data Export:** Save the generated travel profile to a `.txt` file named after the country (e.g., `profile_japan.txt`).
+2. **Create and activate a virtual environment (Recommended):**
+```bash
+   # On macOS/Linux
+   python3 -m venv venv
+   source venv/bin/activate
+
+   # On Windows
+   python -m venv venv
+   venv\Scripts\activate
+```
+
+3. **Install dependencies:**
+```bash
+   pip install -r requirements.txt
+```
 
 ---
 
-## ⚠️ Best Practices & Tips
+## 💻 Usage
 
-* **Work iteratively:** Implement and thoroughly test one phase at a time before proceeding to the next.
-* **Inspect the payload:** Utilize `print(data)` or `print(data.keys())` to explore the structure of the JSON responses if you are unsure of their contents.
-* **Handle timeouts gracefully:** If a specific API is unresponsive, do not stall; proceed with the others and revisit it later.
-* **Code organization:** While creating explicit functions is not strictly necessary for this script (sequential execution is acceptable), you are highly encouraged to organize your code modularly if you feel comfortable doing so.
+Run the main application script from the root directory. Make sure your `PYTHONPATH` allows for the local imports:
 
-**Safe travels! 🧳**
+```bash
+python app/main.py
+```
+
+**Step-by-step Execution:**
+1. The app will welcome you with a retro ASCII banner.
+2. You will be prompted to `Insert a country name:` (e.g., *Japan*, *Italy*).
+3. Next, you will provide an available budget in EUR: `Insert the available budget (EUR):` (e.g., *500*).
+4. The orchestrator will fetch all data from the various APIs and print a fully structured "CuriousTrip Swindle Sheet" to your terminal.
+5. Finally, you can choose to save the output locally: `Would you like to save the sheet? (Y/N):`. If accepted, it will be saved inside `app/data/`.
+
+---
+
+## 🔗 APIs Orchestrated
+
+This project successfully integrates 9 different external APIs to compile its profiles:
+
+1. **[REST Countries API](https://restcountries.com/)** - Core geographical and demographic data.
+2. **[Open-Meteo API](https://open-meteo.com/)** - Geographic coordinate-based live weather tracking.
+3. **[ExchangeRate API](https://www.exchangerate-api.com/)** - Live currency exchange rates.
+4. **[TheMealDB API](https://www.themealdb.com/)** - Random recipe and ingredient generation.
+5. **[HipoLabs Universities API](http://universities.hipolabs.com/)** - Educational institutions list.
+6. **[Cat Facts API](https://catfact.ninja/)** - Daily trivia generation.
+7. **[JokeAPI](https://v2.jokeapi.dev/)** - Safe, single-string programming/general jokes.
+8. **[NASA APOD API](https://api.nasa.gov/)** - Astronomy picture of the day.
+9. **[Dog API](https://dog.ceo/dog-api/)** - Random dog imagery.
+
+---
+
+## 🛠️ Error Handling
+
+Network requests can be unpredictable. `info_fetcher.py` handles potential failures smoothly: if a specific API goes down or times out, the application will simply skip that phase, alert the user of the missing module in an *Errors* section at the bottom of the generated sheet, and continue providing the rest of the available data. 
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! 
+Feel free to check [issues page](https://github.com/GiZano/traveler-api/issues).

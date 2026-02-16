@@ -1,4 +1,4 @@
-# 🧭 The Curious Traveler API (v2.0)
+# 🧭 CuriousTrip - Traveler API v2.0
 
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue?logo=python)
 ![Asyncio](https://img.shields.io/badge/architecture-asynchronous-orange)

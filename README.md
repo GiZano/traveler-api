@@ -2,7 +2,6 @@
 
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue?logo=python)
 ![Asyncio](https://img.shields.io/badge/architecture-asynchronous-orange)
-![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-brightgreen.svg)
 
 **The Curious Traveler** (also known as *CuriousTrip*) is a modular, high-performance command-line application designed for travel data aggregation. By orchestrating nine distinct RESTful APIs, the application generates a comprehensive "Swindle Sheet"—a curated travel profile featuring demographic, meteorological, financial, and cultural insights.
 

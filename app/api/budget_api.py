@@ -1,54 +1,71 @@
-import requests
+import aiohttp
 
-def formatTravelCost(budget: int, startCurrency: str, endCurrency: str):
+async def format_travel_cost(budget: int, start_currency: str, end_currency: str, session: aiohttp.ClientSession):
     """
-    Fetches the converted rate from budgetConverter and formats it for output
+    Fetches the converted rate from budget_converter and formats it for output
     
     :param budget: given by the user
     :type budget: int
-    :param startCurrency: currency from which convert
-    :type startCurrency: str
-    :param endCurrency: currency into which convert
-    :type endCurrency: str
+    :param start_currency: currency from which convert
+    :type start_currency: str
+    :param end_currency: currency into which convert
+    :type end_currency: str
+    :param session: session to send async requests
+    :type session: aiohttp.ClientSession 
     """
-    # create pre-formatted message and insert correct data
-    message = f""" 💰 BUDGET
-    {budget} {startCurrency} = {'{0:.2f}'.format(budgetConverter(budget, startCurrency, endCurrency))} {endCurrency}
+    # get converted budget from converter
+    converted_budget = await budget_converter(budget, start_currency, end_currency, session)
+    if converted_budget is not None:
+        # return if converted budget as been correctly generated
+        return f""" 💰 BUDGET
+        {budget} {start_currency} = {'{0:.2f}'.format(converted_budget)} {end_currency}
+
+"""
+    else:
+        # return "Oops message if the budget hasn't been generated correctly"
+        return f""" 💰 BUDGET
+        Oops... Service Unavailable!
 
 """
 
-    return message
-
-def budgetConverter(budget: int, startCurrency: str, endCurrency: str):
+async def budget_converter(budget: int, start_currency: str, end_currency: str, session: aiohttp.ClientSession):
     """
-    Using fetchConverRate output, convert the given budget from given startCurrency into given endCurrency
+    Using fetchConverRate output, convert the given budget from given start_currency into given end_currency
     
     :param budget: given by the user
     :type budget: int
-    :param startCurrency: currency from which convert
-    :type startCurrency: str
-    :param endCurrency: currency into which convert
-    :type endCurrency: str
+    :param start_currency: currency from which convert
+    :type start_currency: str
+    :param end_currency: currency into which convert
+    :type end_currency: str
+    :param session: session to send async requests
+    :type session: aiohttp.ClientSession 
     """
-    # return given budget times the rate from the fetcher
-    return budget * float(fetchConvertRate(startCurrency, endCurrency))
+    # fetch convert rate using helper function
+    rate = await fetch_convert_rate(start_currency, end_currency, session)
+    if rate:
+        # if rate has been correctly generated, return the converted budget
+        return budget * rate
+    else:
+        # if the rate hasn't been fetched, return None
+        return None
 
-def fetchConvertRate(startCurrency: str, endCurrency: str):
+async def fetch_convert_rate(start_currency: str, end_currency: str, session: aiohttp.ClientSession):
     """
-    Using ExchangeRateAPI, fetches the convertion rate from startCurrency to endCurrency
+    Using ExchangeRateAPI, fetches the convertion rate from start_currency to end_currency
     
-    :param startCurrency: currency from which convert
-    :type startCurrency: str
-    :param endCurrency: currency into which convert
-    :type endCurrency: str
+    :param start_currency: currency from which convert
+    :type start_currency: str
+    :param end_currency: currency into which convert
+    :type end_currency: str
+    :param session: session to send async requests
+    :type session: aiohttp.ClientSession 
     """
-    # get convertion rates of the given startCurrency
-    response = requests.get(f"https://open.er-api.com/v6/latest/{startCurrency}")
-    # transform the json into usable list/dict
-    data = response.json()
-    # get the rate for the selected endCurrency
-    return data['rates'][endCurrency]
-
-
-
-
+    try:
+        # send async requests to fetch convert rates
+        async with session.get(f"https://open.er-api.com/v6/latest/{start_currency}") as response:
+            response.raise_for_status()         # raise exception if code is 4xx or 5xx
+            data = await response.json()        # convert data into dict
+            return data['rates'][end_currency]  # return rate of given end_currency
+    except Exception:
+        return None                             # if there are problems while fetching, return

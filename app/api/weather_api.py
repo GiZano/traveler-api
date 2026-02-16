@@ -1,44 +1,80 @@
-import requests
+import aiohttp
 
-def fetchWeather(latlng: list):
+async def fetchWeather(latlng: list, session: aiohttp.ClientSession):
     """
-    Fetch weather data about the selected country from OPEN METEO API
+    Fetch weather data about the selected country from Open Meteo API
     
     :param latlng: Latitude and Longitude data
     :type latlng: list
+    :param session: session for async requests
+    :type session: aiohttp.ClientSession
     """
-
+    # separate latitude and longitude from given list
     lat = latlng[0]
     lon = latlng[1]
-        
-    response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true")
+    try:
+        # send async request to Open Meteo API
+        async with session.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true") as response:
+            response.raise_for_status()     # raise an Exception for 4xx and 5xx responses
+            data = await response.json()    # convert data into dict
+            return data
+    except aiohttp.ClientError:
+        return None                         # return None if there are problems while fetching
 
-    data = response.json()
-
-    return data
-
-def formatWeather(capital_name:str, weather_data: dict):
+async def formatWeather(capital_name:str, latlng: list, session: aiohttp.ClientSession):
     """
     Formats the given weather data of the selected country
     
-    :param capital_name: Name of the country capital
-    :type country_name: str
-    :param weather_data: Data of the chosen country
-    :type weather_data: dict
+    :param capital_name: capital name of the given country
+    :type capital_name: str
+    :param latlng: latitude and longitude of the given capital
+    :type latlng: list
+    :param session: client session for async requests
+    :type session: aiohttp.ClientSession
     """
+    weather_data = await fetchWeather(latlng, session)  # get data from fetcher function
 
-    temperature = str(weather_data['current_weather']['temperature']) + str(weather_data['current_weather_units']['temperature'])
-    wind        = str(weather_data['current_weather']['windspeed']) + str(weather_data['current_weather_units']['windspeed'])
-    weather_code = weather_data['current_weather']['weathercode']
-
-    message = f""" 🌤️ WEATHER IN {capital_name.upper()} 
-    Temperature: {temperature}
-    Wind: {wind}
-    Weather: {decodeWeather(weather_code)}
+    if weather_data is not None:
+        # if data has been correctly gathered, format it using helper functions
+        return f""" 🌤️ WEATHER IN {capital_name.upper()} 
+    Temperature: {get_temperature(weather_data)}
+    Wind: {get_wind(weather_data)}
+    Weather: {decodeWeather(get_weather_code(weather_data))}
 
 """
+    else:
+        # send "Oops" message if data hasn't been correctly gathered
+        return f""" 🌤️ WEATHER IN {capital_name.upper()} 
+    Oops... Service Unavailable!
+
+"""
+
+def get_temperature(weather_data: dict):
+    """
+    Return temperature of given weather data from Open Meteo API
     
-    return message
+    :param weather_data: weather data from API
+    :type weather_data: dict
+    """
+    return str(weather_data['current_weather']['temperature']) + str(weather_data['current_weather_units']['temperature'])
+
+def get_wind(weather_data: dict):
+    """
+    Return wind of given weather data from Open Meteo API
+    
+    :param weather_data: Description
+    :type weather_data: dict
+    """
+    return str(weather_data['current_weather']['windspeed']) + str(weather_data['current_weather_units']['windspeed'])
+
+def get_weather_code(weather_data: dict):
+    """
+    Return weather code of given weather data from Open Meteo API
+    
+    :param weather_data: Description
+    :type weather_data: dict
+    """
+    return weather_data['current_weather']['weathercode']
 
 def decodeWeather(weather_code: int):
     """

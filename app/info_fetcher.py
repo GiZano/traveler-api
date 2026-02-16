@@ -1,3 +1,5 @@
+### Import libs for async calls ###
+import asyncio, aiohttp
 ### Import all needed APIs to fetch all needed data ###
 import api.country_api as country
 import api.weather_api as weather
@@ -9,7 +11,7 @@ import api.space_api   as space
 import api.dog_api     as dog
 import api.uni_api     as uni
 
-def fetchInfo(country_name: str, given_budget: int):
+async def fetchInfo(country_name: str, given_budget: int, session: aiohttp.ClientSession):
     """
     Build swindle sheet for final user
     
@@ -30,10 +32,12 @@ def fetchInfo(country_name: str, given_budget: int):
 
     data = []
 
+    info = [None, None]
+
     try:
         ### PHASE 0. COUNTRY DATA FETCH ###
             
-        country_data = country.fetchDestination(country_name)
+        country_data = await country.fetch_destination(country_name, session)
 
         if isinstance(country_data, dict):
             errors.append(f'Country {country_name} doesn\' exist!')
@@ -41,78 +45,36 @@ def fetchInfo(country_name: str, given_budget: int):
         
         ### PHASE 1. DESTINATION DATA FORMAT ###
 
-        data.append(country.formatDestination(country_data))
+        data.append(country.format_destination(country_data))
 
-        ### PHASE 2. WEATHER DATA FETCH AND FORMAT ###
-
-        try:
-            data.append(weather.formatWeather(country.getCapitalCity(country_data), weather.fetchWeather(country.getPosition(country_data))))
-        except:
-            errors.append('Weather Data Unavailable!')
-
-        ### PHASE 3. CONVERT GIVEN BUDGET INTO LOCAL CURRENCY
-
-        try:
-            data.append(budget.formatTravelCost(given_budget, 'EUR', country.getCurrency(country_data)[0]))
-        except:
-            errors.append('Currency Convert Rate Data Unavailable!')
-
-        ## 6.3 UNIVERSITIES ##
-
-        try:
-            data.append(uni.formatUnis(country.getCommonName(country_data)))
-        except:
-            errors.append('University List Service Unavailable!')
-
-        ### PHASE 4. GET A RANDOM RECIPE ###
-
-        try:
-            data.append(food.formatRandomRecipe())
-        except:
-            errors.append('Random Recipe Generator Unavailable!')
-
-        ### PHASE 5. TODAY'S CURIOSITIES ###
-
-        ## 5.1 CAT FACTS ##
-
-        try:
-            data.append(cat.formatCatFact())
-        except:
-            errors.append('Cat Facts Generator Unavailable!')
-
-        ## 5.2 RANDOM JOKE ##
-
-        try:
-            data.append(joke.formatJoke())
-        except:
-            errors.append('Joke Generator Unavailable!')
-
-        ### PHASE 6. BONUS DATA ###
-
-        ## 6.1 SPACE PHOTO
-
-        try:
-            data.append(space.formatPhoto())
-        except:
-            errors.append('Space Photo Service Unavailable!')
-
-        ## 6.2 RANDOM DOG ##
-
-        try:
-            data.append(dog.formatDog())
-        except:
-            errors.append('Random Dog Service Unavailable!')
+        data.extend(
+            await asyncio.gather(
+                ### PHASE 2. WEATHER DATA FETCH AND FORMAT ###
+                weather.formatWeather(country.get_capital_city(country_data), country.get_position(country_data), session),
+                ### PHASE 3. CONVERT GIVEN BUDGET INTO LOCAL CURRENCY
+                budget.format_travel_cost(given_budget, 'EUR', country.get_currency(country_data)[0], session),
+                ## 6.3 UNIVERSITIES ##
+                uni.format_unis(country.get_common_name(country_data), session),
+                ### PHASE 4. GET A RANDOM RECIPE ###
+                food.format_random_recipe(session),
+                ### PHASE 5. TODAY'S CURIOSITIES ###
+                ## 5.1 CAT FACTS ##
+                cat.format_cat_fact(session),
+                ## 5.2 RANDOM JOKE ##
+                joke.format_joke(session),
+                ### PHASE 6. BONUS DATA ###
+                ## 6.1 SPACE PHOTO
+                space.format_photo(session),
+                ## 6.2 RANDOM DOG ##
+                dog.format_dog(session)
+            )
+        )
 
         #### INFO FETCHING END ####
+        info[0] = info_header + ''.join(data) + info_footer
+        info[1] = country.get_common_name(country_data)
 
     except Exception:
         errors.append('Country Data Service Isn\'t Responding!')
-    
-    if len(errors) > 0:
-        info_footer = 'Errors: \n   - ' + '\n   - '.join(errors) + '\n\n' + info_footer
-
-    info = []
-    info.append(info_header + ''.join(data) + info_footer)
-    info.append(country.getCommonName(country_data))
 
     return info

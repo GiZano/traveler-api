@@ -1,40 +1,44 @@
-import requests
+import aiohttp
 
-def fetchDestination(country: str):
+async def fetch_destination(country: str, session: aiohttp.ClientSession):
     """
     Fetch destination data based on restcountries API and given country name
     
     :param country: country name
     :type country: str
+    :param session: session for async requests
+    :type session: aiohttp.ClientSession
     """
-    # fetch data from API
-    response = requests.get("https://restcountries.com/v3.1/name/" + country)
-    # convert given json into a list or dict based on API output
-    data = response.json()
+    try:
+        # fetch country data from REST Countries API
+        async with session.get("https://restcountries.com/v3.1/name/" + country) as response:
+            response.raise_for_status       # raise an Exception for 4xx or 5xx responses
+            data = await response.json()    # convert data into list
+            return data                     # return list
+    except Exception:
+        return None                         # return None if there are problems while fetching
 
-    return data
-
-def formatDestination(country_data: list):
+def format_destination(country_data: list):
     """
     Formats the given data of the selected country
     
     :param country_data: data given by the API
     :type country_data: list
     """
-
+    # format given data using helper functions
     message = f""" 
  📍 DESTINATION
-    Country: {getOffName(country_data)}
-    Capital: {getCapitalCity(country_data)}
-    Population: {getPopulation(country_data):,}
-    Continent: {getContinent(country_data)}
-    Language/s: {getLanguage(country_data)}
-    Currency: {getCurrency(country_data)[1]}
+    Country: {get_off_name(country_data)}
+    Capital: {get_capital_city(country_data)}
+    Population: {get_population(country_data):,}
+    Continent: {get_continent(country_data)}
+    Language/s: {get_language(country_data)}
+    Currency: {get_currency(country_data)[1]}
 
 """
     return message
 
-def getOffName(country_data: list):
+def get_off_name(country_data: list):
     """
     Get official name of a country using data given by REST Countries API
     
@@ -43,7 +47,7 @@ def getOffName(country_data: list):
     """
     return country_data[0]['name']['official']
 
-def getCommonName(country_data: list):
+def get_common_name(country_data: list):
     """
     Get common name of a country using data given by REST Countries API
     
@@ -52,7 +56,7 @@ def getCommonName(country_data: list):
     """
     return country_data[0]['name']['common']
 
-def getCapitalCity(country_data: list):
+def get_capital_city(country_data: list):
     """
     Get capital city of a country using data given by REST Countries API
     
@@ -61,7 +65,7 @@ def getCapitalCity(country_data: list):
     """
     return country_data[0]['capital'][0]
 
-def getPopulation(country_data: list):
+def get_population(country_data: list):
     """
     Get population of a country using data given by REST Countries API
     
@@ -70,7 +74,7 @@ def getPopulation(country_data: list):
     """
     return country_data[0]['population']
 
-def getContinent(country_data: list):
+def get_continent(country_data: list):
     """
     Get continent of a country using data given by REST Countries API
     
@@ -84,7 +88,7 @@ def getContinent(country_data: list):
 
     return continents
 
-def getLanguage(country_data: list):
+def get_language(country_data: list):
     """
     Get languages of a country using data given by REST Countries API
     
@@ -97,7 +101,7 @@ def getLanguage(country_data: list):
         languages = languages + "\n" + "       - " + country_data[0]['languages'][language].title() + ","
     return languages
 
-def getCurrency(country_data: list):
+def get_currency(country_data: list):
     """
     Get currency ( [abbr, fullName ]) of a country using data given by REST Countries API
     
@@ -112,7 +116,7 @@ def getCurrency(country_data: list):
         
     return currencies
 
-def getPosition(country_data: list):
+def get_position(country_data: list):
     """
     Get position of a country ( [latitude, logitude] ) using data given by REST Countries API
     

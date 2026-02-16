@@ -1,29 +1,42 @@
-import requests
+import aiohttp
 
-def formatPhoto():
+async def format_photo(session: aiohttp.ClientSession):
     """
     Format data from Nasa API using helper functions
+
+    :param session: session to send async requests
+    :type session: aiohttp.ClientSession
     """
-    # save retrieved data from fetcher function
-    photo_data = fetchPhoto()
+    photo_data = await fetch_photo(session) # save retrieved data from fetcher function
     # format data using helper functions
-    message = f""" 📸 SPACE PHOTO
-    Title: {getTitle(photo_data)}
-    URL: {getURL(photo_data)}
+    if photo_data is not None:
+        return f""" 📸 SPACE PHOTO
+    Title: {get_title(photo_data)}
+    URL: {get_url(photo_data)}
 
 """
-    return message
+    else:
+        return """ 📸 SPACE PHOTO
+    Oops... Service Unavailable!
+
+"""
     
-def fetchPhoto():
+async def fetch_photo(session: aiohttp.ClientSession):
     """
     Fetch today's photo using NASA API
-    """
-    # fetch data from NASA API
-    response = requests.get("https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY")
-    # convert response into dict and return it
-    return response.json()
 
-def getTitle(photo_data: dict):
+    :param session: session to send async requests
+    :type session: aiohttp.ClientSession
+    """
+    try:
+        # send async request to NASA API
+        async with session.get("https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY") as response:
+            response.raise_for_status()     # raise an Exception for 4xx and 5xx responses
+            return await response.json()    # return response turned in a dict
+    except Exception:
+        return None                         # return None if there are problems while fetching
+
+def get_title(photo_data: dict):
     """
     Return photo title from given dict
     
@@ -32,7 +45,7 @@ def getTitle(photo_data: dict):
     """
     return photo_data['title']
 
-def getURL(photo_data: dict):
+def get_url(photo_data: dict):
     """
     Return photo url from given dict
     

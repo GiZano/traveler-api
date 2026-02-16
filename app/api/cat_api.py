@@ -1,23 +1,38 @@
-import requests
+import aiohttp
 
-def formatCatFact():
+async def format_cat_fact(session: aiohttp.ClientSession):
     """
     Format random cat fact from fetcher into string
-    """
 
-    message = f""" 🐱 CAT FACT
-    {fetchCatFact()}
+    :param session: session to send async requests
+    :type session: aiohttp.ClientSession 
+    """
+    fact = await fetch_cat_fact(session)  # get fact from getcher function
+    if fact is not None:
+        # return message with fact if it has been retrieved correctly
+        return f""" 🐱 CAT FACT
+    {fact}
 
 """
-    return message
+    else:
+        # return "Oops" message if the fact hasn't been fetched
+        return """ 🐱 CAT FACT
+    Oops... Service Unavailable
 
-def fetchCatFact():
+"""
+
+async def fetch_cat_fact(session: aiohttp.ClientSession):
     """
     Fetch random cat fact from Cat Facts API
+
+    :param session: session to send async requests
+    :type session: aiohttp.ClientSession 
     """
-    # fetch data from Cat Facts API
-    response = requests.get("https://catfact.ninja/fact")
-    # convert retrieved json into usable dict/list
-    data = response.json()
-    # return fact from data (dict)
-    return data['fact']
+    try:
+        # send async request to Cat Facts API
+        async with session.get("https://catfact.ninja/fact") as response:   
+            response.raise_for_status()  # raise an Exception for responses with 4xx or 5xx
+            data = await response.json() # convert data into dict
+            return data['fact']          # return fact
+    except Exception:
+        return None                      # return None if there has been problems while fetching

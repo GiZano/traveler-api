@@ -9,6 +9,11 @@
 
 This Version 2.0 introduces a complete transition to asynchronous programming, utilizing `aiohttp` and `asyncio` to execute concurrent network requests, significantly reducing data retrieval latency.
 
+## 🎥 Demo
+Here is a quick demonstration of the portal in action, from login to registering a new volunteer:
+
+![Demo Gif](https://giovanni-zanotti.is-a.dev/Media/curious-traveler/demo-cli.gif)
+
 ---
 
 ## 📂 Project Structure

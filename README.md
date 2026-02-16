@@ -59,8 +59,8 @@ The application aggregates data from the following providers:
 * **Education**: HipoLabs Universities API
 * **Content & Trivia**: TheMealDB, Cat Facts, JokeAPI, NASA APOD, and Dog API.
 
-### Note on University API (uni_api)
-The `uni_api` module currently utilizes a `DEMO_KEY`. If the application returns an **Oops..."** message in the University section, it indicates that the demo credit limit has been reached. For extended use, it is mandatory to generate a personal API Key and update the configuration within the module to restore functionality.
+### Note on NASA API (space_api)
+The `space_api` module currently utilizes a `DEMO_KEY`. If the application returns an **Oops..."** message in the Space Photo section, it indicates that the demo credit limit has been reached. For extended use, it is mandatory to generate a personal API Key and update the configuration within the module to restore functionality.
 
 ---
 

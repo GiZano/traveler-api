@@ -65,8 +65,8 @@ The project follows a modular design pattern to ensure maintainability and scala
 Clone the repository and install the required packages:
 
 ```bash
-git clone https://github.com/GiZano/CuriousTrip.git
-cd CuriousTrip
+git clone https://github.com/GiZano/traveler-api.git
+cd traveler-api
 pip install -r requirements.txt
 ```
 
